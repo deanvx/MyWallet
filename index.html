@@ -4,13 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#3b82f6">
-    <title>MyWallet</title>
-    <!-- Tailwind CSS -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="description" content="MyWallet - Aplikasi pencatatan dan pengelolaan keuangan pribadi.">
+    <title>MyWallet - Personal Finance</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
     <script>
@@ -18,14 +17,18 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif']
                     }
                 }
             }
         }
     </script>
+
     <style>
-        /* Smooth scrolling dan hide scrollbar untuk estetik */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -34,48 +37,86 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
+
+        button:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .transaction-item {
+            animation: fadeIn .2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-20">
 
-    <!-- Header -->
-    <header class="bg-blue-600 text-white shadow-md sticky top-0 z-10">
+    <!-- HEADER -->
+    <header class="bg-blue-600 text-white shadow-md sticky top-0 z-20">
         <div class="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
+
             <h1 class="text-xl font-bold flex items-center gap-2">
-                <i class="ph-fill ph-wallet text-2xl"></i> MyWallet
+                <i class="ph-fill ph-wallet text-2xl"></i>
+                MyWallet
             </h1>
+
             <div class="flex items-center gap-3">
-                <!-- User Info & Logout (Hidden by default) -->
-                <div id="userInfo" class="hidden flex items-center gap-2">
-                    <img id="userAvatar" src="" class="w-8 h-8 rounded-full border-2 border-blue-400 bg-white"
-                        alt="Avatar">
+
+                <div id="userInfo" class="hidden items-center gap-2">
+                    <img id="userAvatar" src="" alt="Avatar" referrerpolicy="no-referrer"
+                        class="w-8 h-8 rounded-full border-2 border-blue-400 bg-white">
+
                     <button onclick="logout()"
-                        class="text-sm bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-full transition-colors text-white"
+                        class="text-sm bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-full transition"
                         title="Keluar">
                         <i class="ph ph-sign-out"></i>
                     </button>
                 </div>
+
                 <button onclick="installPWA()" id="installBtn"
-                    class="hidden text-sm bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors">
-                    <i class="ph ph-download-simple mr-1"></i> Install App
+                    class="hidden text-sm bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full">
+                    <i class="ph ph-download-simple mr-1"></i>
+                    Install App
                 </button>
+
             </div>
         </div>
     </header>
 
-    <!-- Login Screen -->
+
+    <!-- LOGIN SCREEN -->
     <main id="loginScreen" class="max-w-3xl mx-auto px-4 mt-20 text-center">
+
         <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 max-w-sm mx-auto">
+
             <div
                 class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">
                 <i class="ph-fill ph-wallet"></i>
             </div>
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">Selamat Datang</h2>
-            <p class="text-slate-500 text-sm mb-6">Login dengan akun Google agar data Anda tersinkronisasi di HP dan
-                Laptop.</p>
+
+            <h2 class="text-2xl font-bold mb-2">
+                Selamat Datang
+            </h2>
+
+            <p class="text-slate-500 text-sm mb-6">
+                Login dengan akun Google agar data keuangan tersinkronisasi di HP dan laptop.
+            </p>
+
             <button id="loginBtn" onclick="loginWithGoogle()"
-                class="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 px-4 rounded-xl transition-colors shadow-sm flex justify-center items-center gap-3">
+                class="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 px-4 rounded-xl transition shadow-sm flex justify-center items-center gap-3">
+
                 <svg class="w-5 h-5" viewBox="0 0 24 24">
                     <path
                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -90,159 +131,293 @@
                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                         fill="#EA4335" />
                 </svg>
-                <span id="loginBtnText">Lanjutkan dengan Google</span>
+
+                <span id="loginBtnText">
+                    Lanjutkan dengan Google
+                </span>
+
             </button>
+
+            <p class="text-xs text-slate-400 mt-5">
+                MyWallet Personal Finance Management
+            </p>
+
         </div>
     </main>
 
-    <!-- App Content (Hidden initially) -->
+
+    <!-- APP CONTENT -->
     <main id="appContent" class="hidden max-w-3xl mx-auto px-4 mt-6 space-y-6">
 
-        <!-- Dashboard Section -->
+        <!-- DASHBOARD -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <!-- Saldo -->
+
+            <!-- SALDO -->
             <div
-                class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 col-span-1 md:col-span-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white">
-                <p class="text-blue-100 text-sm font-medium mb-1">Total Saldo</p>
-                <h2 id="totalBalance" class="text-3xl font-bold tracking-tight">Rp 0</h2>
+                class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-5 shadow-sm text-white col-span-1 md:col-span-3">
+
+                <div class="flex justify-between items-center">
+                    <p class="text-blue-100 text-sm font-medium">
+                        Total Saldo
+                    </p>
+                    <i class="ph ph-wallet text-2xl text-blue-200"></i>
+                </div>
+
+                <h2 id="totalBalance" class="text-3xl font-bold tracking-tight mt-2">
+                    Rp 0
+                </h2>
+
+                <p class="text-blue-100 text-xs mt-2">
+                    Ringkasan keuangan kamu
+                </p>
+
             </div>
 
-            <!-- Pemasukan -->
+
+            <!-- PEMASUKAN -->
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
+
                 <div
                     class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl">
                     <i class="ph ph-trend-up"></i>
                 </div>
+
                 <div>
-                    <p class="text-slate-500 text-xs font-medium mb-0.5">Pemasukan</p>
-                    <h3 id="totalIncome" class="text-lg font-bold text-emerald-600">Rp 0</h3>
+                    <p class="text-slate-500 text-xs font-medium">
+                        Pemasukan
+                    </p>
+                    <h3 id="totalIncome" class="text-lg font-bold text-emerald-600">
+                        Rp 0
+                    </h3>
                 </div>
+
             </div>
 
-            <!-- Pengeluaran -->
+
+            <!-- PENGELUARAN -->
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
+
                 <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-2xl">
                     <i class="ph ph-trend-down"></i>
                 </div>
+
                 <div>
-                    <p class="text-slate-500 text-xs font-medium mb-0.5">Pengeluaran</p>
-                    <h3 id="totalExpense" class="text-lg font-bold text-rose-600">Rp 0</h3>
+                    <p class="text-slate-500 text-xs font-medium">
+                        Pengeluaran
+                    </p>
+                    <h3 id="totalExpense" class="text-lg font-bold text-rose-600">
+                        Rp 0
+                    </h3>
                 </div>
+
             </div>
+
         </section>
 
-        <!-- Form Tambah Transaksi -->
+
+        <!-- FORM TRANSAKSI -->
         <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+
             <h3 class="font-semibold text-lg mb-4 flex items-center gap-2">
-                <i class="ph-fill ph-plus-circle text-blue-500"></i> Tambah Transaksi
+                <i class="ph-fill ph-plus-circle text-blue-500"></i>
+                Tambah Transaksi
             </h3>
+
             <form id="transactionForm" class="space-y-4">
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Jenis -->
+
+                    <!-- JENIS -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Jenis Transaksi</label>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">
+                            Jenis Transaksi
+                        </label>
+
                         <select id="type"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 bg-slate-50">
                             <option value="expense">Pengeluaran</option>
                             <option value="income">Pemasukan</option>
                         </select>
                     </div>
 
-                    <!-- Kategori -->
+
+                    <!-- KATEGORI -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Kategori</label>
-                        <select id="category"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
-                            <!-- Populated by JS based on type -->
-                        </select>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">
+                            Kategori
+                        </label>
+
+                        <select id="category" required
+                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 bg-slate-50"></select>
                     </div>
 
-                    <!-- Nominal -->
+
+                    <!-- NOMINAL -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Nominal (Rp)</label>
-                        <input type="number" id="amount" required min="1" placeholder="Contoh: 50000"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">
+                            Nominal (Rp)
+                        </label>
+
+                        <input type="number" id="amount" required min="1" step="1" placeholder="Contoh: 50000"
+                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 bg-slate-50">
                     </div>
 
-                    <!-- Tanggal -->
+
+                    <!-- TANGGAL -->
                     <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Tanggal</label>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">
+                            Tanggal
+                        </label>
+
                         <input type="date" id="date" required
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 bg-slate-50">
                     </div>
 
-                    <!-- Keterangan -->
+
+                    <!-- KETERANGAN -->
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Keterangan (Opsional)</label>
-                        <input type="text" id="description" placeholder="Contoh: Beli makan siang"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+
+                        <label class="block text-sm font-medium text-slate-600 mb-1">
+                            Keterangan (Opsional)
+                        </label>
+
+                        <input type="text" id="description" maxlength="150" placeholder="Contoh: Beli makan siang"
+                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 bg-slate-50">
+
                     </div>
+
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-colors shadow-sm mt-2 flex justify-center items-center gap-2">
-                    <i class="ph ph-floppy-disk"></i> Simpan Transaksi
+
+                <button type="submit" id="saveBtn"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition shadow-sm flex justify-center items-center gap-2">
+                    <i class="ph ph-floppy-disk"></i>
+                    Simpan Transaksi
                 </button>
+
             </form>
+
         </section>
 
-        <!-- Riwayat Transaksi -->
+
+        <!-- RIWAYAT TRANSAKSI -->
         <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+
             <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+
                 <h3 class="font-semibold text-lg flex items-center gap-2">
-                    <i class="ph-fill ph-clock-counter-clockwise text-slate-400"></i> Riwayat Terakhir
+                    <i class="ph-fill ph-clock-counter-clockwise text-slate-400"></i>
+                    Riwayat Transaksi
                 </h3>
+
+                <span id="transactionCount" class="text-xs text-slate-400">
+                    0 transaksi
+                </span>
+
             </div>
 
-            <div id="transactionList" class="divide-y divide-slate-100 no-scrollbar overflow-y-auto max-h-[400px]">
-                <!-- Item disuntikkan via JS -->
+
+            <div id="transactionList" class="divide-y divide-slate-100 no-scrollbar overflow-y-auto max-h-[450px]">
             </div>
+
 
             <div id="emptyState" class="hidden p-8 text-center text-slate-400">
+
                 <i class="ph ph-receipt text-5xl mb-2 opacity-50"></i>
-                <p>Belum ada riwayat transaksi.</p>
+
+                <p class="font-medium">
+                    Belum ada riwayat transaksi.
+                </p>
+
+                <p class="text-xs mt-1">
+                    Tambahkan transaksi pertamamu.
+                </p>
+
             </div>
+
         </section>
 
     </main>
 
-    <!-- Toast Notification (pengganti alert) -->
-    <div id="toast"
-        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-full text-sm shadow-lg transition-all duration-300 opacity-0 translate-y-10 pointer-events-none z-50">
-        Pesan Toast
+
+    <!-- TOAST -->
+    <div id="toast" role="status" aria-live="polite"
+        class="fixed bottom-4 left-1/2 -translate-x-1/2 bg-slate-800 text-white px-4 py-3 rounded-xl text-sm shadow-lg transition-all duration-300 opacity-0 translate-y-10 pointer-events-none z-50 max-w-[90%] text-center">
+        Pesan
     </div>
 
-    <!-- Popup Info Modal (Terlihat jika Cookies/Storage diblokir browser) -->
+
+    <!-- STORAGE MODAL -->
     <div id="storageModal"
         class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+
         <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-xl space-y-4">
+
             <div
                 class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-2xl mx-auto">
                 <i class="ph ph-warning"></i>
             </div>
-            <h3 class="font-bold text-lg text-slate-800">Izin Browser Diperlukan</h3>
-            <p class="text-xs text-slate-600 text-left leading-relaxed">
-                Browser Anda memblokir <strong>Third-Party Cookies</strong> / <strong>Storage Access</strong>. Untuk
-                bisa login:
+
+            <h3 class="font-bold text-lg">
+                Izin Browser Diperlukan
+            </h3>
+
+            <p class="text-sm text-slate-600">
+                Browser mengalami kendala saat mengakses penyimpanan autentikasi.
             </p>
-            <ul class="text-xs text-slate-600 text-left list-disc pl-5 space-y-1">
-                <li>Buka di <strong>Google Chrome</strong> (Tab Biasa, bukan Incognito).</li>
-                <li>Jika pakai <strong>Safari (iPhone)</strong>: Buka Pengaturan HP &gt; Safari &gt; Matikan <em>Prevent
-                        Cross-Site Tracking</em>.</li>
-                <li>Buka link langsung di Chrome, bukan dari dalam aplikasi WhatsApp/Instagram.</li>
+
+            <ul class="text-xs text-slate-600 text-left list-disc pl-5 space-y-2">
+                <li>Gunakan Google Chrome versi terbaru.</li>
+                <li>Izinkan JavaScript dan cookies.</li>
+                <li>Izinkan popup untuk website ini.</li>
+                <li>Hindari membuka website melalui browser internal WhatsApp atau Instagram.</li>
+                <li>Coba gunakan tab biasa, bukan Incognito.</li>
             </ul>
+
             <button onclick="document.getElementById('storageModal').classList.add('hidden')"
-                class="w-full bg-blue-600 text-white font-medium py-2.5 rounded-xl text-sm">
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-xl text-sm">
                 Mengerti
             </button>
+
         </div>
     </div>
 
+
+    <!-- FIREBASE & APPLICATION LOGIC -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // Menggunakan signInWithPopup dengan Persistence Management
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserPopupRedirectResolver } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // 1. FIREBASE IMPORT
+        // ==========================================
+
+        import { initializeApp } from
+            "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+
+        import {
+            getAuth,
+            GoogleAuthProvider,
+            signInWithPopup,
+            onAuthStateChanged,
+            signOut,
+            setPersistence,
+            browserLocalPersistence
+        } from
+            "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        import {
+            getFirestore,
+            doc,
+            setDoc,
+            deleteDoc,
+            onSnapshot,
+            collection
+        } from
+            "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+        // ==========================================
+        // 2. FIREBASE CONFIGURATION
+        // ==========================================
 
         const firebaseConfig = {
             apiKey: "AIzaSyCx2AV0PTussrLZetXjqiElHXokCzLnsGw",
@@ -252,400 +427,1135 @@
             messagingSenderId: "497468405827",
             appId: "1:497468405827:web:ca1a36b95c5ec423b6bcf6"
         };
-        const appId = 'mywallet-app';
 
-        let app, auth, db;
+        const appId = "mywallet-app";
+
+        let app = null;
+        let auth = null;
+        let db = null;
+
+        const firebaseConfigured =
+            firebaseConfig.apiKey !== "COPY_DARI_FIREBASE" &&
+            firebaseConfig.authDomain !== "COPY_DARI_FIREBASE" &&
+            firebaseConfig.projectId !== "COPY_DARI_FIREBASE" &&
+            firebaseConfig.appId !== "COPY_DARI_FIREBASE";
+
         try {
-            if (firebaseConfig.apiKey !== "COPY_DARI_FIREBASE") {
+
+            if (firebaseConfigured) {
+
                 app = initializeApp(firebaseConfig);
+
                 auth = getAuth(app);
+
                 db = getFirestore(app);
+
+                console.log("Firebase berhasil diinisialisasi.");
+
             } else {
-                console.warn("⚠️ Konfigurasi Firebase belum diisi. Menunggu update dari Anda.");
+
+                console.warn(
+                    "Konfigurasi Firebase belum diisi."
+                );
+
             }
-        } catch (e) {
-            console.error("Firebase init error:", e);
+
+        } catch (error) {
+
+            console.error("Firebase initialization error:", error);
+
         }
 
-        // --- 1. PWA MOCKING (Injecting Manifest & Service Worker from single file) ---
-        function setupPWA() {
-            // A. Inject manifest.json
-            const manifestData = {
-                "name": "MyWallet",
-                "short_name": "MyWallet",
-                "start_url": ".",
-                "display": "standalone",
-                "background_color": "#f8fafc",
-                "theme_color": "#2563eb",
-                "icons": [
-                    {
-                        "src": "https://placehold.co/192x192/2563eb/white?text=DK",
-                        "sizes": "192x192",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "https://placehold.co/512x512/512?text=DK",
-                        "sizes": "512x512",
-                        "type": "image/png"
-                    }
-                ]
-            };
-            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
-            const manifestUrl = URL.createObjectURL(manifestBlob);
-            const link = document.createElement('link');
-            link.rel = 'manifest';
-            link.href = manifestUrl;
-            document.head.appendChild(link);
-        }
 
-        // PWA Install Prompt handling
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            const installBtn = document.getElementById('installBtn');
-            installBtn.classList.remove('hidden');
-        });
+        // ==========================================
+        // 3. GLOBAL VARIABLES
+        // ==========================================
 
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        document.getElementById('installBtn').classList.add('hidden');
-                    }
-                    deferredPrompt = null;
-                });
-            }
-        }
-        window.installPWA = installPWA;
-
-        // --- 2. LOGIC APLIKASI KEUANGAN ---
         let transactions = [];
         let currentUser = null;
         let unsubscribeSnapshot = null;
+        let toastTimeout = null;
+        let loginInProgress = false;
 
-        const categories = {
-            expense: [
-                { id: 'food', name: 'Makanan & Minuman', icon: 'ph-hamburger' },
-                { id: 'transport', name: 'Transportasi', icon: 'ph-car' },
-                { id: 'shopping', name: 'Belanja', icon: 'ph-shopping-bag' },
-                { id: 'bills', name: 'Tagihan', icon: 'ph-receipt' },
-                { id: 'entertainment', name: 'Hiburan', icon: 'ph-popcorn' },
-                { id: 'other_exp', name: 'Lainnya', icon: 'ph-dots-three-circle' }
-            ],
-            income: [
-                { id: 'salary', name: 'Gaji', icon: 'ph-money' },
-                { id: 'bonus', name: 'Bonus', icon: 'ph-gift' },
-                { id: 'investment', name: 'Investasi', icon: 'ph-chart-line-up' },
-                { id: 'other_inc', name: 'Lainnya', icon: 'ph-dots-three-circle' }
-            ]
-        };
-
-        const form = document.getElementById('transactionForm');
-        const typeSelect = document.getElementById('type');
-        const categorySelect = document.getElementById('category');
-        const dateInput = document.getElementById('date');
-        const listContainer = document.getElementById('transactionList');
-        const emptyState = document.getElementById('emptyState');
-        const toast = document.getElementById('toast');
-
-        const formatRupiah = (number) => {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(number);
-        };
-
-        const formatDate = (dateString) => {
-            const options = { day: 'numeric', month: 'short', year: 'numeric' };
-            return new Date(dateString).toLocaleDateString('id-ID', options);
-        };
-
-        const showToast = (message) => {
-            toast.textContent = message;
-            toast.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
-            }, 3000);
-        };
-
-        // --- 3. DATABASE SETUP (CLOUD) ---
         const googleProvider = new GoogleAuthProvider();
+
         googleProvider.setCustomParameters({
-            prompt: 'select_account'
+            prompt: "select_account"
         });
 
-        function setupAuth() {
-            // Dengarkan status autentikasi secara realtime
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    currentUser = user;
-                    document.getElementById('loginScreen').classList.add('hidden');
-                    document.getElementById('appContent').classList.remove('hidden');
-                    document.getElementById('userInfo').classList.remove('hidden');
 
-                    document.getElementById('userAvatar').src = user.photoURL || 'https://placehold.co/100x100/2563eb/white?text=' + (user.displayName || 'U').charAt(0);
+        // ==========================================
+        // 4. DOM ELEMENTS
+        // ==========================================
 
-                    setupRealtimeData();
-                } else {
-                    currentUser = null;
-                    transactions = [];
-                    document.getElementById('loginScreen').classList.remove('hidden');
-                    document.getElementById('appContent').classList.add('hidden');
-                    document.getElementById('userInfo').classList.add('hidden');
+        const form = document.getElementById("transactionForm");
 
-                    if (unsubscribeSnapshot) {
-                        unsubscribeSnapshot();
-                    }
+        const typeSelect = document.getElementById("type");
+
+        const categorySelect = document.getElementById("category");
+
+        const dateInput = document.getElementById("date");
+
+        const listContainer = document.getElementById("transactionList");
+
+        const emptyState = document.getElementById("emptyState");
+
+        const toast = document.getElementById("toast");
+
+
+        // ==========================================
+        // 5. TRANSACTION CATEGORIES
+        // ==========================================
+
+        const categories = {
+
+            expense: [
+
+                {
+                    id: "food",
+                    name: "Makanan & Minuman",
+                    icon: "ph-hamburger"
+                },
+
+                {
+                    id: "transport",
+                    name: "Transportasi",
+                    icon: "ph-car"
+                },
+
+                {
+                    id: "shopping",
+                    name: "Belanja",
+                    icon: "ph-shopping-bag"
+                },
+
+                {
+                    id: "bills",
+                    name: "Tagihan",
+                    icon: "ph-receipt"
+                },
+
+                {
+                    id: "entertainment",
+                    name: "Hiburan",
+                    icon: "ph-popcorn"
+                },
+
+                {
+                    id: "other_exp",
+                    name: "Lainnya",
+                    icon: "ph-dots-three-circle"
                 }
-            });
-        }
 
-        async function loginWithGoogle() {
-            if (!auth || firebaseConfig.apiKey === "COPY_DARI_FIREBASE") {
-                showToast("Konfigurasi Firebase belum diisi!");
-                return;
-            }
+            ],
 
-            const loginBtnText = document.getElementById('loginBtnText');
-            const originalText = loginBtnText ? loginBtnText.innerText : "";
+            income: [
 
-            try {
-                if (loginBtnText) loginBtnText.innerText = "Menghubungkan...";
+                {
+                    id: "salary",
+                    name: "Gaji",
+                    icon: "ph-money"
+                },
 
-                // Set persistence ke local storage agar sesi bertahan tanpa bergantung pada temporary session storage
-                await setPersistence(auth, browserLocalPersistence);
+                {
+                    id: "bonus",
+                    name: "Bonus",
+                    icon: "ph-gift"
+                },
 
-                googleProvider.setCustomParameters({
-                    prompt: 'select_account'
-                });
+                {
+                    id: "investment",
+                    name: "Investasi",
+                    icon: "ph-chart-line-up"
+                },
 
-                await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
-                showToast("Login berhasil!");
-            } catch (error) {
-                console.error("Login error:", error);
-
-                // Jika browser memblokir storage/cookies atau missing initial state
-                if (error.code === 'auth/web-storage-unsupported' || (error.message && error.message.includes('missing initial state'))) {
-                    try {
-                        sessionStorage.clear();
-                        localStorage.clear();
-                    } catch (e) { }
-                    document.getElementById('storageModal').classList.remove('hidden');
-                } else if (error.code !== 'auth/popup-closed-by-user') {
-                    showToast("Gagal login. Coba muat ulang halaman.");
+                {
+                    id: "other_inc",
+                    name: "Lainnya",
+                    icon: "ph-dots-three-circle"
                 }
-            } finally {
-                if (loginBtnText) loginBtnText.innerText = originalText || "Lanjutkan dengan Google";
-            }
+
+            ]
+
+        };
+
+
+        // ==========================================
+        // 6. HELPER FUNCTIONS
+        // ==========================================
+
+        function formatRupiah(number) {
+
+            return new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(number);
+
         }
-        window.loginWithGoogle = loginWithGoogle;
 
-        async function logout() {
-            try {
-                // Hapus token lokal secara manual untuk memastikan state bersih 100%
-                try {
-                    sessionStorage.clear();
-                    localStorage.clear();
-                } catch (e) { }
 
-                await signOut(auth);
-                showToast("Berhasil keluar.");
+        function formatDate(dateString) {
 
-                currentUser = null;
-                transactions = [];
-                document.getElementById('loginScreen').classList.remove('hidden');
-                document.getElementById('appContent').classList.add('hidden');
-                document.getElementById('userInfo').classList.add('hidden');
-            } catch (error) {
-                console.error("Logout error:", error);
-                showToast("Gagal keluar.");
-            }
-        }
-        window.logout = logout;
+            if (!dateString) return "-";
 
-        function setupRealtimeData() {
-            if (!currentUser) return;
+            const parts = dateString.split("-");
 
-            const userId = currentUser.uid;
-            const txCollection = collection(db, 'artifacts', appId, 'users', userId, 'transactions');
+            if (parts.length !== 3) return "-";
 
-            unsubscribeSnapshot = onSnapshot(txCollection, (snapshot) => {
-                transactions = [];
-                snapshot.forEach((doc) => {
-                    transactions.push({ id: doc.id, ...doc.data() });
-                });
+            const date = new Date(
+                Number(parts[0]),
+                Number(parts[1]) - 1,
+                Number(parts[2])
+            );
 
-                transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-                updateUI();
-            }, (error) => {
-                console.error("Snapshot error:", error);
-                showToast("Gagal mengambil data.");
+            return date.toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
             });
+
         }
 
-        // Initialize UI
-        function init() {
-            setupPWA();
-            dateInput.valueAsDate = new Date();
-            updateCategoryDropdown();
 
-            if (app) setupAuth();
-            else {
-                document.getElementById('loginScreen').classList.remove('hidden');
-                document.getElementById('appContent').classList.add('hidden');
+        function showToast(message) {
+
+            toast.textContent = message;
+
+            toast.classList.remove(
+                "opacity-0",
+                "translate-y-10"
+            );
+
+            if (toastTimeout) {
+                clearTimeout(toastTimeout);
             }
 
-            typeSelect.addEventListener('change', updateCategoryDropdown);
-            form.addEventListener('submit', handleAddTransaction);
+            toastTimeout = setTimeout(() => {
+
+                toast.classList.add(
+                    "opacity-0",
+                    "translate-y-10"
+                );
+
+            }, 3000);
+
         }
+
+
+        function getCategoryInfo(type, categoryId) {
+
+            return categories[type]?.find(
+                item => item.id === categoryId
+            ) || {
+                name: "Lainnya",
+                icon: "ph-question"
+            };
+
+        }
+
+
+        function getToday() {
+
+            const now = new Date();
+
+            const year = now.getFullYear();
+
+            const month = String(
+                now.getMonth() + 1
+            ).padStart(2, "0");
+
+            const day = String(
+                now.getDate()
+            ).padStart(2, "0");
+
+            return `${year}-${month}-${day}`;
+
+        }
+
+
+        // ==========================================
+        // 7. CATEGORY DROPDOWN
+        // ==========================================
 
         function updateCategoryDropdown() {
+
             const type = typeSelect.value;
-            const options = categories[type];
 
-            categorySelect.innerHTML = options.map(cat =>
-                `<option value="${cat.id}">${cat.name}</option>`
-            ).join('');
+            const options = categories[type] || [];
+
+            categorySelect.innerHTML = "";
+
+            options.forEach(category => {
+
+                const option = document.createElement("option");
+
+                option.value = category.id;
+
+                option.textContent = category.name;
+
+                categorySelect.appendChild(option);
+
+            });
+
         }
 
-        function getCategoryIcon(type, catId) {
-            const catInfo = categories[type].find(c => c.id === catId);
-            return catInfo ? catInfo.icon : 'ph-question';
-        }
 
-        function getCategoryName(type, catId) {
-            const catInfo = categories[type].find(c => c.id === catId);
-            return catInfo ? catInfo.name : 'Unknown';
-        }
+        // ==========================================
+        // 8. GOOGLE AUTHENTICATION
+        // ==========================================
 
-        async function handleAddTransaction(e) {
-            e.preventDefault();
+        async function loginWithGoogle() {
 
-            if (!currentUser) {
-                showToast('Gagal: Belum terhubung ke server');
+            if (!auth || !db) {
+
+                showToast(
+                    "Konfigurasi Firebase belum diisi!"
+                );
+
                 return;
+
             }
 
-            const type = document.getElementById('type').value;
-            const category = document.getElementById('category').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-            const date = document.getElementById('date').value;
-            const description = document.getElementById('description').value || getCategoryName(type, category);
+            if (loginInProgress) return;
 
-            if (!amount || amount <= 0) {
-                showToast('Nominal harus lebih dari 0');
-                return;
+            loginInProgress = true;
+
+            const loginBtn = document.getElementById("loginBtn");
+
+            const loginBtnText = document.getElementById("loginBtnText");
+
+            try {
+
+                loginBtn.disabled = true;
+
+                loginBtnText.textContent = "Menghubungkan...";
+
+                // Gunakan local persistence.
+                // Sesi login tetap tersimpan setelah browser ditutup.
+
+                await setPersistence(
+                    auth,
+                    browserLocalPersistence
+                );
+
+                // Login Google menggunakan popup.
+
+                const result = await signInWithPopup(
+                    auth,
+                    googleProvider
+                );
+
+                console.log(
+                    "Login berhasil:",
+                    result.user.uid
+                );
+
+                showToast("Login berhasil!");
+
+            } catch (error) {
+
+                console.error(
+                    "Firebase Login Error:",
+                    error.code,
+                    error.message
+                );
+
+                if (
+                    error.code === "auth/popup-closed-by-user"
+                ) {
+
+                    showToast("Login dibatalkan.");
+
+                } else if (
+                    error.code === "auth/popup-blocked"
+                ) {
+
+                    showToast(
+                        "Popup diblokir. Izinkan popup browser."
+                    );
+
+                } else if (
+                    error.code === "auth/unauthorized-domain"
+                ) {
+
+                    showToast(
+                        "Domain belum terdaftar di Firebase."
+                    );
+
+                } else if (
+                    error.code === "auth/operation-not-allowed"
+                ) {
+
+                    showToast(
+                        "Google Authentication belum diaktifkan."
+                    );
+
+                } else if (
+                    error.code === "auth/web-storage-unsupported" ||
+                    error.message?.includes("missing initial state")
+                ) {
+
+                    document
+                        .getElementById("storageModal")
+                        .classList.remove("hidden");
+
+                } else if (
+                    error.code === "auth/cancelled-popup-request"
+                ) {
+
+                    showToast(
+                        "Proses login sebelumnya masih berjalan."
+                    );
+
+                } else if (
+                    error.code === "auth/network-request-failed"
+                ) {
+
+                    showToast(
+                        "Periksa koneksi internet kamu."
+                    );
+
+                } else {
+
+                    showToast(
+                        "Login gagal. Periksa konfigurasi Firebase."
+                    );
+
+                }
+
+            } finally {
+
+                loginInProgress = false;
+
+                loginBtn.disabled = false;
+
+                loginBtnText.textContent =
+                    "Lanjutkan dengan Google";
+
             }
 
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Menyimpan...';
+        }
+
+        window.loginWithGoogle = loginWithGoogle;
+
+
+        // ==========================================
+        // 9. AUTH STATE LISTENER
+        // ==========================================
+
+        function setupAuth() {
+
+            if (!auth) return;
+
+            onAuthStateChanged(
+                auth,
+
+                (user) => {
+
+                    if (user) {
+
+                        currentUser = user;
+
+                        document
+                            .getElementById("loginScreen")
+                            .classList.add("hidden");
+
+                        document
+                            .getElementById("appContent")
+                            .classList.remove("hidden");
+
+                        document
+                            .getElementById("userInfo")
+                            .classList.remove("hidden");
+
+                        const avatar =
+                            document.getElementById("userAvatar");
+
+                        avatar.src =
+                            user.photoURL ||
+                            "https://placehold.co/100x100/2563eb/white?text=U";
+
+                        avatar.onerror = () => {
+
+                            avatar.src =
+                                "https://placehold.co/100x100/2563eb/white?text=U";
+
+                        };
+
+                        setupRealtimeData();
+
+                    } else {
+
+                        currentUser = null;
+
+                        transactions = [];
+
+                        if (unsubscribeSnapshot) {
+
+                            unsubscribeSnapshot();
+
+                            unsubscribeSnapshot = null;
+
+                        }
+
+                        document
+                            .getElementById("loginScreen")
+                            .classList.remove("hidden");
+
+                        document
+                            .getElementById("appContent")
+                            .classList.add("hidden");
+
+                        document
+                            .getElementById("userInfo")
+                            .classList.add("hidden");
+
+                        updateUI();
+
+                    }
+
+                },
+
+                (error) => {
+
+                    console.error(
+                        "Authentication state error:",
+                        error
+                    );
+
+                    showToast(
+                        "Gagal memeriksa status login."
+                    );
+
+                }
+
+            );
+
+        }
+
+
+        // ==========================================
+        // 10. LOGOUT
+        // ==========================================
+
+        async function logout() {
+
+            if (!auth) return;
+
+            try {
+
+                await signOut(auth);
+
+                showToast("Berhasil keluar.");
+
+            } catch (error) {
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+                showToast("Gagal keluar.");
+
+            }
+
+        }
+
+        window.logout = logout;
+
+
+        // ==========================================
+        // 11. FIRESTORE REALTIME DATABASE
+        // ==========================================
+
+        function setupRealtimeData() {
+
+            if (!currentUser || !db) return;
+
+            // Hentikan listener sebelumnya.
+
+            if (unsubscribeSnapshot) {
+
+                unsubscribeSnapshot();
+
+                unsubscribeSnapshot = null;
+
+            }
+
+            const userId = currentUser.uid;
+
+            const txCollection = collection(
+                db,
+                "artifacts",
+                appId,
+                "users",
+                userId,
+                "transactions"
+            );
+
+            unsubscribeSnapshot = onSnapshot(
+
+                txCollection,
+
+                (snapshot) => {
+
+                    transactions = [];
+
+                    snapshot.forEach((document) => {
+
+                        transactions.push({
+
+                            id: document.id,
+
+                            ...document.data()
+
+                        });
+
+                    });
+
+                    transactions.sort((a, b) => {
+
+                        const dateA = a.date || "";
+
+                        const dateB = b.date || "";
+
+                        return dateB.localeCompare(dateA);
+
+                    });
+
+                    updateUI();
+
+                },
+
+                (error) => {
+
+                    console.error(
+                        "Firestore snapshot error:",
+                        error
+                    );
+
+                    showToast(
+                        "Gagal mengambil data transaksi."
+                    );
+
+                }
+
+            );
+
+        }
+
+
+        // ==========================================
+        // 12. ADD TRANSACTION
+        // ==========================================
+
+        async function handleAddTransaction(event) {
+
+            event.preventDefault();
+
+            if (!currentUser || !db) {
+
+                showToast(
+                    "Silakan login terlebih dahulu."
+                );
+
+                return;
+
+            }
+
+            const type = typeSelect.value;
+
+            const category = categorySelect.value;
+
+            const amount = Number(
+                document.getElementById("amount").value
+            );
+
+            const date = dateInput.value;
+
+            const description =
+                document
+                    .getElementById("description")
+                    .value.trim() ||
+                getCategoryInfo(type, category).name;
+
+
+            if (!Number.isSafeInteger(amount) || amount <= 0) {
+
+                showToast(
+                    "Nominal harus berupa angka positif."
+                );
+
+                return;
+
+            }
+
+            if (!date) {
+
+                showToast("Tanggal harus diisi.");
+
+                return;
+
+            }
+
+            if (!categories[type]?.some(item => item.id === category)) {
+
+                showToast("Kategori tidak valid.");
+
+                return;
+
+            }
+
+
+            const submitBtn = document.getElementById("saveBtn");
+
+            const originalHTML = submitBtn.innerHTML;
+
             submitBtn.disabled = true;
 
-            const transactionId = Date.now().toString();
-            const txDoc = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'transactions', transactionId);
+            submitBtn.innerHTML = `
+                <i class="ph ph-spinner animate-spin"></i>
+                Menyimpan...
+            `;
+
 
             try {
+
+                const transactionId =
+                    crypto.randomUUID();
+
+                const txDoc = doc(
+                    db,
+                    "artifacts",
+                    appId,
+                    "users",
+                    currentUser.uid,
+                    "transactions",
+                    transactionId
+                );
+
                 await setDoc(txDoc, {
-                    type,
-                    category,
-                    amount,
-                    date,
-                    description
+
+                    type: type,
+
+                    category: category,
+
+                    amount: amount,
+
+                    date: date,
+
+                    description: description,
+
+                    createdAt: new Date().toISOString()
+
                 });
 
-                document.getElementById('amount').value = '';
-                document.getElementById('description').value = '';
+                form.reset();
 
-                showToast('Tersimpan di Cloud Database!');
+                dateInput.value = getToday();
+
+                updateCategoryDropdown();
+
+                showToast(
+                    "Transaksi berhasil disimpan!"
+                );
+
             } catch (error) {
-                console.error("Gagal menyimpan:", error);
-                showToast('Gagal menyimpan transaksi.');
+
+                console.error(
+                    "Save transaction error:",
+                    error
+                );
+
+                showToast(
+                    "Gagal menyimpan transaksi."
+                );
+
             } finally {
-                submitBtn.innerHTML = originalText;
+
                 submitBtn.disabled = false;
+
+                submitBtn.innerHTML = originalHTML;
+
             }
+
         }
+
+
+        // ==========================================
+        // 13. DELETE TRANSACTION
+        // ==========================================
 
         async function deleteTransaction(id) {
-            if (!currentUser) return;
+
+            if (!currentUser || !db) return;
+
+            const confirmed = confirm(
+                "Apakah kamu yakin ingin menghapus transaksi ini?"
+            );
+
+            if (!confirmed) return;
 
             try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'transactions', id));
-                showToast('Transaksi dihapus.');
+
+                const txDoc = doc(
+                    db,
+                    "artifacts",
+                    appId,
+                    "users",
+                    currentUser.uid,
+                    "transactions",
+                    id
+                );
+
+                await deleteDoc(txDoc);
+
+                showToast(
+                    "Transaksi berhasil dihapus."
+                );
+
             } catch (error) {
-                console.error("Gagal menghapus:", error);
-                showToast('Gagal menghapus transaksi.');
+
+                console.error(
+                    "Delete transaction error:",
+                    error
+                );
+
+                showToast(
+                    "Gagal menghapus transaksi."
+                );
+
             }
+
         }
+
         window.deleteTransaction = deleteTransaction;
 
+
+        // ==========================================
+        // 14. UPDATE DASHBOARD
+        // ==========================================
+
         function updateUI() {
+
             let income = 0;
+
             let expense = 0;
 
-            transactions.forEach(t => {
-                if (t.type === 'income') income += t.amount;
-                else expense += t.amount;
+            transactions.forEach(transaction => {
+
+                const amount = Number(transaction.amount) || 0;
+
+                if (transaction.type === "income") {
+
+                    income += amount;
+
+                } else if (transaction.type === "expense") {
+
+                    expense += amount;
+
+                }
+
             });
 
             const balance = income - expense;
 
-            document.getElementById('totalBalance').textContent = formatRupiah(balance);
-            document.getElementById('totalIncome').textContent = formatRupiah(income);
-            document.getElementById('totalExpense').textContent = formatRupiah(expense);
+            document.getElementById(
+                "totalBalance"
+            ).textContent = formatRupiah(balance);
 
-            listContainer.innerHTML = '';
+            document.getElementById(
+                "totalIncome"
+            ).textContent = formatRupiah(income);
+
+            document.getElementById(
+                "totalExpense"
+            ).textContent = formatRupiah(expense);
+
+
+            // UPDATE COUNT
+
+            document.getElementById(
+                "transactionCount"
+            ).textContent =
+                `${transactions.length} transaksi`;
+
+
+            // RESET LIST
+
+            listContainer.innerHTML = "";
+
+
+            // EMPTY STATE
 
             if (transactions.length === 0) {
-                emptyState.classList.remove('hidden');
-            } else {
-                emptyState.classList.add('hidden');
 
-                transactions.forEach(t => {
-                    const isIncome = t.type === 'income';
-                    const iconClass = getCategoryIcon(t.type, t.category);
+                emptyState.classList.remove("hidden");
 
-                    const div = document.createElement('div');
-                    div.className = "p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group cursor-default";
-                    div.innerHTML = `
-                        <div class="flex items-center gap-3 md:gap-4">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xl shrink-0 ${isIncome ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}">
-                                <i class="ph ${iconClass}"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-medium text-slate-800 line-clamp-1">${t.description}</h4>
-                                <div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
-                                    <span>${formatDate(t.date)}</span>
-                                    <span>•</span>
-                                    <span>${getCategoryName(t.type, t.category)}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 text-right">
-                            <div class="font-semibold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}">
-                                ${isIncome ? '+' : '-'}${formatRupiah(t.amount)}
-                            </div>
-                            <button onclick="deleteTransaction('${t.id}')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors opacity-0 md:group-hover:opacity-100 focus:opacity-100">
-                                <i class="ph ph-trash"></i>
-                            </button>
-                        </div>
-                    `;
+                return;
 
-                    if (window.innerWidth < 768) {
-                        div.querySelector('button').classList.remove('opacity-0');
-                    }
-
-                    listContainer.appendChild(div);
-                });
             }
+
+            emptyState.classList.add("hidden");
+
+
+            // RENDER TRANSACTIONS
+
+            transactions.forEach(transaction => {
+
+                const isIncome =
+                    transaction.type === "income";
+
+                const categoryInfo = getCategoryInfo(
+                    transaction.type,
+                    transaction.category
+                );
+
+                const item = document.createElement("div");
+
+                item.className =
+                    "transaction-item p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group";
+
+
+                // LEFT CONTENT
+
+                const left = document.createElement("div");
+
+                left.className =
+                    "flex items-center gap-3 md:gap-4 min-w-0";
+
+
+                const iconWrapper = document.createElement("div");
+
+                iconWrapper.className =
+                    `w-10 h-10 rounded-full flex items-center justify-center text-xl shrink-0 ${isIncome
+                        ? "bg-emerald-100 text-emerald-600"
+                        : "bg-rose-100 text-rose-600"
+                    }`;
+
+
+                const icon = document.createElement("i");
+
+                icon.className = `ph ${categoryInfo.icon}`;
+
+                iconWrapper.appendChild(icon);
+
+
+                const info = document.createElement("div");
+
+                info.className = "min-w-0";
+
+
+                const title = document.createElement("h4");
+
+                title.className =
+                    "font-medium text-slate-800 truncate";
+
+                title.textContent =
+                    transaction.description || categoryInfo.name;
+
+
+                const detail = document.createElement("div");
+
+                detail.className =
+                    "flex flex-wrap items-center gap-2 text-xs text-slate-500 mt-0.5";
+
+
+                const date = document.createElement("span");
+
+                date.textContent = formatDate(transaction.date);
+
+
+                const separator = document.createElement("span");
+
+                separator.textContent = "•";
+
+
+                const category = document.createElement("span");
+
+                category.textContent = categoryInfo.name;
+
+
+                detail.append(
+                    date,
+                    separator,
+                    category
+                );
+
+                info.append(
+                    title,
+                    detail
+                );
+
+                left.append(
+                    iconWrapper,
+                    info
+                );
+
+
+                // RIGHT CONTENT
+
+                const right = document.createElement("div");
+
+                right.className =
+                    "flex items-center gap-2 sm:gap-3 text-right shrink-0";
+
+
+                const amount = document.createElement("div");
+
+                amount.className =
+                    `font-semibold text-sm ${isIncome
+                        ? "text-emerald-600"
+                        : "text-rose-600"
+                    }`;
+
+                amount.textContent =
+                    `${isIncome ? "+" : "-"}${formatRupiah(transaction.amount)}`;
+
+
+                // DELETE BUTTON
+
+                const deleteBtn = document.createElement("button");
+
+                deleteBtn.type = "button";
+
+                deleteBtn.className =
+                    "w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition";
+
+                deleteBtn.title = "Hapus transaksi";
+
+                deleteBtn.setAttribute(
+                    "aria-label",
+                    "Hapus transaksi"
+                );
+
+                deleteBtn.innerHTML =
+                    '<i class="ph ph-trash"></i>';
+
+                deleteBtn.addEventListener(
+                    "click",
+                    () => deleteTransaction(transaction.id)
+                );
+
+
+                right.append(
+                    amount,
+                    deleteBtn
+                );
+
+                item.append(
+                    left,
+                    right
+                );
+
+                listContainer.appendChild(item);
+
+            });
+
         }
 
-        window.addEventListener('DOMContentLoaded', init);
+
+        // ==========================================
+        // 15. PWA INSTALL PROMPT
+        // ==========================================
+
+        let deferredPrompt = null;
+
+        window.addEventListener(
+            "beforeinstallprompt",
+            (event) => {
+
+                event.preventDefault();
+
+                deferredPrompt = event;
+
+                document
+                    .getElementById("installBtn")
+                    .classList.remove("hidden");
+
+            }
+        );
+
+
+        async function installPWA() {
+
+            if (!deferredPrompt) {
+
+                showToast(
+                    "Instalasi belum tersedia di browser ini."
+                );
+
+                return;
+
+            }
+
+            deferredPrompt.prompt();
+
+            const result = await deferredPrompt.userChoice;
+
+            if (result.outcome === "accepted") {
+
+                showToast("Aplikasi berhasil dipasang.");
+
+            }
+
+            deferredPrompt = null;
+
+            document
+                .getElementById("installBtn")
+                .classList.add("hidden");
+
+        }
+
+        window.installPWA = installPWA;
+
+
+        // ==========================================
+        // 16. INITIALIZATION
+        // ==========================================
+
+        function init() {
+
+            console.log("MyWallet initialized.");
+
+            dateInput.value = getToday();
+
+            updateCategoryDropdown();
+
+            typeSelect.addEventListener(
+                "change",
+                updateCategoryDropdown
+            );
+
+            form.addEventListener(
+                "submit",
+                handleAddTransaction
+            );
+
+            if (auth && db) {
+
+                setupAuth();
+
+            } else {
+
+                document
+                    .getElementById("loginScreen")
+                    .classList.remove("hidden");
+
+                document
+                    .getElementById("appContent")
+                    .classList.add("hidden");
+
+            }
+
+        }
+
+        init();
+
     </script>
+
 </body>
 
 </html>
