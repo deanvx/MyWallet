@@ -443,21 +443,8 @@
 
         async function logout() {
             try {
-                // Bersihkan session storage agar tidak ada state auth lama yang gantung
-                try {
-                    sessionStorage.clear();
-                    localStorage.clear();
-                } catch (e) { }
-
                 await signOut(auth);
                 showToast("Berhasil keluar.");
-
-                // Hard reset sederhana pada komponen auth UI
-                currentUser = null;
-                transactions = [];
-                document.getElementById('loginScreen').classList.remove('hidden');
-                document.getElementById('appContent').classList.add('hidden');
-                document.getElementById('userInfo').classList.add('hidden');
             } catch (error) {
                 console.error("Logout error:", error);
                 showToast("Gagal keluar.");
