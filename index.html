@@ -393,7 +393,8 @@
                 showToast("Berhasil login!");
             } catch (error) {
                 console.error("Login error:", error);
-                showToast("Gagal login dengan Google.");
+                // Menampilkan kode error asli dari Firebase ke layar
+                showToast("Error: " + error.code);
             }
         }
         window.loginWithGoogle = loginWithGoogle;
