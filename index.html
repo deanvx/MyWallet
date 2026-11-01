@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#3b82f6">
-    <title>Pencatat Keuangan Pribadi</title>
+    <title>MyWallet</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts -->
@@ -155,12 +155,36 @@
         Pesan Toast
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // GANTI BAGIAN INI DENGAN KONFIGURASI FIREBASE ANDA SENDIRI DARI LANGKAH 4
+        const firebaseConfig = {
+            apiKey: "COPY_DARI_FIREBASE",
+            authDomain: "COPY_DARI_FIREBASE",
+            projectId: "COPY_DARI_FIREBASE",
+            storageBucket: "COPY_DARI_FIREBASE",
+            messagingSenderId: "COPY_DARI_FIREBASE",
+            appId: "COPY_DARI_FIREBASE"
+        };
+        const appId = 'mywallet-app';
+
+        let app, auth, db;
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase init error:", e);
+        }
+
         // --- 1. PWA MOCKING (Injecting Manifest & Service Worker from single file) ---
         function setupPWA() {
             // A. Inject manifest.json
             const manifestData = {
-                "name": "MyWallet PWA",
+                "name": "MyWallet",
                 "short_name": "MyWallet",
                 "start_url": ".",
                 "display": "standalone",
@@ -211,11 +235,13 @@
                 });
             }
         }
+        window.installPWA = installPWA; // Ekspos ke global agar bisa dipanggil HTML
 
         // --- 2. LOGIC APLIKASI KEUANGAN ---
 
         // State & Data
-        let transactions = JSON.parse(localStorage.getItem('mywallet_data')) || [];
+        let transactions = []; // Data akan dimuat dari Cloud Database
+        let currentUser = null;
         
         const categories = {
             expense: [
@@ -265,12 +291,52 @@
             }, 3000);
         };
 
+        // --- 3. DATABASE SETUP (CLOUD) ---
+        async function initAuth() {
+            try {
+                // Menggunakan mode Anonymous Login untuk Firebase milik Anda sendiri
+                await signInAnonymously(auth);
+                currentUser = auth.currentUser;
+                setupRealtimeData();
+            } catch (error) {
+                console.error("Auth error:", error);
+                showToast("Gagal terhubung ke database cloud.");
+            }
+        }
+
+        function setupRealtimeData() {
+            if (!currentUser) return; // Wajib terautentikasi sebelum membaca data
+            
+            const userId = currentUser.uid;
+            
+            // Tentukan jalur penyimpanan khusus untuk user (Data Pribadi)
+            const txCollection = collection(db, 'artifacts', appId, 'users', userId, 'transactions');
+            
+            // Mendengarkan perubahan data secara realtime (Sync across devices)
+            onSnapshot(txCollection, (snapshot) => {
+                transactions = [];
+                snapshot.forEach((doc) => {
+                    transactions.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Urutkan data berdasarkan tanggal terbaru
+                transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+                updateUI();
+            }, (error) => {
+                console.error("Snapshot error:", error);
+                showToast("Gagal mengambil sinkronisasi data.");
+            });
+        }
+
         // Initialize UI
         function init() {
             setupPWA();
             dateInput.valueAsDate = new Date(); // Set today
             updateCategoryDropdown();
-            updateUI();
+            
+            // Hubungkan ke Cloud DB saat mulai
+            if (app) initAuth();
+            else updateUI();
 
             // Event Listeners
             typeSelect.addEventListener('change', updateCategoryDropdown);
@@ -296,9 +362,14 @@
             return catInfo ? catInfo.name : 'Unknown';
         }
 
-        function handleAddTransaction(e) {
+        async function handleAddTransaction(e) {
             e.preventDefault();
             
+            if (!currentUser) {
+                showToast('Gagal: Belum terhubung ke server');
+                return;
+            }
+
             const type = document.getElementById('type').value;
             const category = document.getElementById('category').value;
             const amount = parseFloat(document.getElementById('amount').value);
@@ -310,40 +381,53 @@
                 return;
             }
 
-            const transaction = {
-                id: Date.now().toString(),
-                type,
-                category,
-                amount,
-                date,
-                description
-            };
+            // Ubah tombol submit saat proses menyimpan
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Menyimpan...';
+            submitBtn.disabled = true;
 
-            transactions.push(transaction);
-            
-            // Sort by date desc
-            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-            
-            saveData();
-            updateUI();
-            
-            // Reset form but keep date
-            document.getElementById('amount').value = '';
-            document.getElementById('description').value = '';
-            
-            showToast('Transaksi berhasil disimpan!');
+            const transactionId = Date.now().toString();
+            const txDoc = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'transactions', transactionId);
+
+            try {
+                // Simpan ke Cloud Database
+                await setDoc(txDoc, {
+                    type,
+                    category,
+                    amount,
+                    date,
+                    description
+                });
+                
+                // Reset form input
+                document.getElementById('amount').value = '';
+                document.getElementById('description').value = '';
+                
+                showToast('Tersimpan di Cloud Database!');
+            } catch (error) {
+                console.error("Gagal menyimpan:", error);
+                showToast('Gagal menyimpan transaksi.');
+            } finally {
+                // Kembalikan kondisi tombol submit
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
         }
 
-        function deleteTransaction(id) {
-            transactions = transactions.filter(t => t.id !== id);
-            saveData();
-            updateUI();
-            showToast('Transaksi dihapus.');
+        async function deleteTransaction(id) {
+            if (!currentUser) return;
+            
+            try {
+                // Hapus langsung dari Cloud Database
+                await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'transactions', id));
+                showToast('Transaksi dihapus.');
+            } catch (error) {
+                console.error("Gagal menghapus:", error);
+                showToast('Gagal menghapus transaksi.');
+            }
         }
-
-        function saveData() {
-            localStorage.setItem('mywallet_data', JSON.stringify(transactions));
-        }
+        window.deleteTransaction = deleteTransaction; // Ekspos ke global
 
         function updateUI() {
             // Hitung total
