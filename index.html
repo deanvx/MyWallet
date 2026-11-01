@@ -414,13 +414,23 @@
 
             try {
                 if (loginBtnText) loginBtnText.innerText = "Menghubungkan...";
+
+                // Pastikan prompt pilihan akun selalu dipaksa saat login
+                googleProvider.setCustomParameters({
+                    prompt: 'select_account'
+                });
+
                 await signInWithPopup(auth, googleProvider);
                 showToast("Login berhasil!");
             } catch (error) {
                 console.error("Login error:", error);
 
                 // Jika browser memblokir sessionStorage / cross-site cookies
-                if (error.message && error.message.includes('missing initial state')) {
+                if (error.message && (error.message.includes('missing initial state') || error.code === 'auth/internal-error')) {
+                    // Bersihkan cache storage sementara browser agar tidak tersangkut di state gantung
+                    try {
+                        sessionStorage.clear();
+                    } catch (e) { }
                     document.getElementById('storageModal').classList.remove('hidden');
                 } else if (error.code !== 'auth/popup-closed-by-user') {
                     showToast("Error: " + (error.code || error.message));
@@ -433,8 +443,21 @@
 
         async function logout() {
             try {
+                // Bersihkan session storage agar tidak ada state auth lama yang gantung
+                try {
+                    sessionStorage.clear();
+                    localStorage.clear();
+                } catch (e) { }
+
                 await signOut(auth);
                 showToast("Berhasil keluar.");
+
+                // Hard reset sederhana pada komponen auth UI
+                currentUser = null;
+                transactions = [];
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('appContent').classList.add('hidden');
+                document.getElementById('userInfo').classList.add('hidden');
             } catch (error) {
                 console.error("Logout error:", error);
                 showToast("Gagal keluar.");
