@@ -212,6 +212,32 @@
         Pesan Toast
     </div>
 
+    <!-- Popup Info Modal (Terlihat jika Cookies/Storage diblokir browser) -->
+    <div id="storageModal"
+        class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-6 max-w-sm w-full text-center shadow-xl space-y-4">
+            <div
+                class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center text-2xl mx-auto">
+                <i class="ph ph-warning"></i>
+            </div>
+            <h3 class="font-bold text-lg text-slate-800">Izin Browser Diperlukan</h3>
+            <p class="text-xs text-slate-600 text-left leading-relaxed">
+                Browser Anda memblokir <strong>Third-Party Cookies</strong> / <strong>Storage Access</strong>. Untuk
+                bisa login:
+            </p>
+            <ul class="text-xs text-slate-600 text-left list-disc pl-5 space-y-1">
+                <li>Buka di <strong>Google Chrome</strong> (Tab Biasa, bukan Incognito).</li>
+                <li>Jika pakai <strong>Safari (iPhone)</strong>: Buka Pengaturan HP &gt; Safari &gt; Matikan <em>Prevent
+                        Cross-Site Tracking</em>.</li>
+                <li>Buka link langsung di Chrome, bukan dari dalam aplikasi WhatsApp/Instagram.</li>
+            </ul>
+            <button onclick="document.getElementById('storageModal').classList.add('hidden')"
+                class="w-full bg-blue-600 text-white font-medium py-2.5 rounded-xl text-sm">
+                Mengerti
+            </button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         // Menggunakan signInWithPopup kembali (lebih stabil di cross-origin Vercel)
@@ -392,7 +418,11 @@
                 showToast("Login berhasil!");
             } catch (error) {
                 console.error("Login error:", error);
-                if (error.code !== 'auth/popup-closed-by-user') {
+
+                // Jika browser memblokir sessionStorage / cross-site cookies
+                if (error.message && error.message.includes('missing initial state')) {
+                    document.getElementById('storageModal').classList.remove('hidden');
+                } else if (error.code !== 'auth/popup-closed-by-user') {
                     showToast("Error: " + (error.code || error.message));
                 }
             } finally {
