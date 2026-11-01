@@ -214,8 +214,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // 1. UBAH IMPORT: Ganti signInWithPopup menjadi signInWithRedirect dan tambahkan getRedirectResult
-        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // Menggunakan signInWithPopup kembali (lebih stabil di cross-origin Vercel)
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -258,7 +258,7 @@
                         "type": "image/png"
                     },
                     {
-                        "src": "https://placehold.co/512x512/2563eb/white?text=DK",
+                        "src": "https://placehold.co/512x512/512?text=DK",
                         "sizes": "512x512",
                         "type": "image/png"
                     }
@@ -270,10 +270,6 @@
             link.rel = 'manifest';
             link.href = manifestUrl;
             document.head.appendChild(link);
-
-            // B. Service Worker (Dihapus)
-            // Registrasi Service Worker via Blob URL tidak didukung secara keamanan di environment ini,
-            // sehingga bagian ini dilewati agar tidak menyebabkan error di console.
         }
 
         // PWA Install Prompt handling
@@ -296,12 +292,10 @@
                 });
             }
         }
-        window.installPWA = installPWA; // Ekspos ke global agar bisa dipanggil HTML
+        window.installPWA = installPWA;
 
         // --- 2. LOGIC APLIKASI KEUANGAN ---
-
-        // State & Data
-        let transactions = []; // Data akan dimuat dari Cloud Database
+        let transactions = [];
         let currentUser = null;
         let unsubscribeSnapshot = null;
 
@@ -322,7 +316,6 @@
             ]
         };
 
-        // DOM Elements
         const form = document.getElementById('transactionForm');
         const typeSelect = document.getElementById('type');
         const categorySelect = document.getElementById('category');
@@ -331,7 +324,6 @@
         const emptyState = document.getElementById('emptyState');
         const toast = document.getElementById('toast');
 
-        // Utils
         const formatRupiah = (number) => {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -355,35 +347,14 @@
 
         // --- 3. DATABASE SETUP (CLOUD) ---
         const googleProvider = new GoogleAuthProvider();
-
         googleProvider.setCustomParameters({
             prompt: 'select_account'
         });
 
-        async function setupAuth() {
-            // Tampilkan efek loading saat aplikasi sedang memproses redirect balik dari Google
-            const loginBtnText = document.getElementById('loginBtnText');
-            if (loginBtnText) loginBtnText.innerText = "Memverifikasi login...";
-
-            try {
-                // Tangkap hasil redirect Google jika baru kembali dari halaman Google
-                const result = await getRedirectResult(auth);
-                if (result && result.user) {
-                    showToast("Login berhasil!");
-                }
-            } catch (error) {
-                console.error("Redirect login error:", error);
-                if (error.code !== 'auth/popup-closed-by-user') {
-                    showToast("Gagal login: " + (error.code || error.message));
-                }
-            } finally {
-                if (loginBtnText) loginBtnText.innerText = "Lanjutkan dengan Google";
-            }
-
-            // Dengarkan status autentikasi
+        function setupAuth() {
+            // Dengarkan status autentikasi secara realtime
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    // Jika User berhasil login
                     currentUser = user;
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('appContent').classList.remove('hidden');
@@ -393,7 +364,6 @@
 
                     setupRealtimeData();
                 } else {
-                    // Jika User logout/belum login
                     currentUser = null;
                     transactions = [];
                     document.getElementById('loginScreen').classList.remove('hidden');
@@ -408,17 +378,25 @@
         }
 
         async function loginWithGoogle() {
-            if (firebaseConfig.apiKey === "COPY_DARI_FIREBASE") {
+            if (!auth || firebaseConfig.apiKey === "COPY_DARI_FIREBASE") {
                 showToast("Konfigurasi Firebase belum diisi!");
                 return;
             }
+
+            const loginBtnText = document.getElementById('loginBtnText');
+            const originalText = loginBtnText ? loginBtnText.innerText : "";
+
             try {
-                const loginBtnText = document.getElementById('loginBtnText');
-                if (loginBtnText) loginBtnText.innerText = "Membuka Google...";
-                await signInWithRedirect(auth, googleProvider);
+                if (loginBtnText) loginBtnText.innerText = "Menghubungkan...";
+                await signInWithPopup(auth, googleProvider);
+                showToast("Login berhasil!");
             } catch (error) {
                 console.error("Login error:", error);
-                showToast("Error: " + error.code);
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    showToast("Error: " + (error.code || error.message));
+                }
+            } finally {
+                if (loginBtnText) loginBtnText.innerText = originalText || "Lanjutkan dengan Google";
             }
         }
         window.loginWithGoogle = loginWithGoogle;
@@ -435,44 +413,37 @@
         window.logout = logout;
 
         function setupRealtimeData() {
-            if (!currentUser) return; // Wajib terautentikasi sebelum membaca data
+            if (!currentUser) return;
 
             const userId = currentUser.uid;
-
-            // Tentukan jalur penyimpanan khusus untuk user (Data Pribadi)
             const txCollection = collection(db, 'artifacts', appId, 'users', userId, 'transactions');
 
-            // Mendengarkan perubahan data secara realtime (Sync across devices)
             unsubscribeSnapshot = onSnapshot(txCollection, (snapshot) => {
                 transactions = [];
                 snapshot.forEach((doc) => {
                     transactions.push({ id: doc.id, ...doc.data() });
                 });
 
-                // Urutkan data berdasarkan tanggal terbaru
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 updateUI();
             }, (error) => {
                 console.error("Snapshot error:", error);
-                showToast("Gagal mengambil sinkronisasi data.");
+                showToast("Gagal mengambil data.");
             });
         }
 
         // Initialize UI
         function init() {
             setupPWA();
-            dateInput.valueAsDate = new Date(); // Set today
+            dateInput.valueAsDate = new Date();
             updateCategoryDropdown();
 
-            // Hubungkan ke Cloud DB saat mulai
             if (app) setupAuth();
             else {
-                // Tampilkan halaman login jika belum di-setup
                 document.getElementById('loginScreen').classList.remove('hidden');
                 document.getElementById('appContent').classList.add('hidden');
             }
 
-            // Event Listeners
             typeSelect.addEventListener('change', updateCategoryDropdown);
             form.addEventListener('submit', handleAddTransaction);
         }
@@ -515,7 +486,6 @@
                 return;
             }
 
-            // Ubah tombol submit saat proses menyimpan
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Menyimpan...';
@@ -525,7 +495,6 @@
             const txDoc = doc(db, 'artifacts', appId, 'users', currentUser.uid, 'transactions', transactionId);
 
             try {
-                // Simpan ke Cloud Database
                 await setDoc(txDoc, {
                     type,
                     category,
@@ -534,7 +503,6 @@
                     description
                 });
 
-                // Reset form input
                 document.getElementById('amount').value = '';
                 document.getElementById('description').value = '';
 
@@ -543,7 +511,6 @@
                 console.error("Gagal menyimpan:", error);
                 showToast('Gagal menyimpan transaksi.');
             } finally {
-                // Kembalikan kondisi tombol submit
                 submitBtn.innerHTML = originalText;
                 submitBtn.disabled = false;
             }
@@ -553,7 +520,6 @@
             if (!currentUser) return;
 
             try {
-                // Hapus langsung dari Cloud Database
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'transactions', id));
                 showToast('Transaksi dihapus.');
             } catch (error) {
@@ -561,10 +527,9 @@
                 showToast('Gagal menghapus transaksi.');
             }
         }
-        window.deleteTransaction = deleteTransaction; // Ekspos ke global
+        window.deleteTransaction = deleteTransaction;
 
         function updateUI() {
-            // Hitung total
             let income = 0;
             let expense = 0;
 
@@ -575,12 +540,10 @@
 
             const balance = income - expense;
 
-            // Update Dashboard text
             document.getElementById('totalBalance').textContent = formatRupiah(balance);
             document.getElementById('totalIncome').textContent = formatRupiah(income);
             document.getElementById('totalExpense').textContent = formatRupiah(expense);
 
-            // Update Riwayat List
             listContainer.innerHTML = '';
 
             if (transactions.length === 0) {
@@ -618,7 +581,6 @@
                         </div>
                     `;
 
-                    // Supaya di mobile button hapus tetap terlihat (tanpa hover)
                     if (window.innerWidth < 768) {
                         div.querySelector('button').classList.remove('opacity-0');
                     }
@@ -628,9 +590,7 @@
             }
         }
 
-        // Jalankan aplikasi
         window.addEventListener('DOMContentLoaded', init);
-
     </script>
 </body>
 
