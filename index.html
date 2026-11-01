@@ -214,7 +214,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // 1. UBAH IMPORT: Ganti signInWithPopup menjadi signInWithRedirect dan tambahkan getRedirectResult
+        import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -361,6 +362,12 @@
         });
 
         function setupAuth() {
+            // 2. TAMBAHKAN INI: Untuk menangkap data saat Google mengembalikan user ke website kita
+            getRedirectResult(auth).catch((error) => {
+                console.error("Redirect login error:", error);
+                showToast("Gagal login: " + (error.code || error.message));
+            });
+
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     // Jika User berhasil login
@@ -394,11 +401,10 @@
                 return;
             }
             try {
-                await signInWithPopup(auth, googleProvider);
-                showToast("Berhasil login!");
+                // 3. UBAH METODE LOGIN: Dari Popup menjadi Redirect
+                await signInWithRedirect(auth, googleProvider);
             } catch (error) {
                 console.error("Login error:", error);
-                // Menampilkan kode error asli dari Firebase ke layar
                 showToast("Error: " + error.code);
             }
         }
