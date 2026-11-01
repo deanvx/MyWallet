@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
+    
     <script>
         tailwind.config = {
             theme: {
@@ -29,14 +28,12 @@
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
-
         .no-scrollbar {
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
     </style>
 </head>
-
 <body class="bg-slate-50 text-slate-800 min-h-screen pb-20">
 
     <!-- Header -->
@@ -45,28 +42,55 @@
             <h1 class="text-xl font-bold flex items-center gap-2">
                 <i class="ph-fill ph-wallet text-2xl"></i> MyWallet
             </h1>
-            <button onclick="installPWA()" id="installBtn"
-                class="hidden text-sm bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors">
-                <i class="ph ph-download-simple mr-1"></i> Install App
-            </button>
+            <div class="flex items-center gap-3">
+                <!-- User Info & Logout (Hidden by default) -->
+                <div id="userInfo" class="hidden flex items-center gap-2">
+                    <img id="userAvatar" src="" class="w-8 h-8 rounded-full border-2 border-blue-400 bg-white" alt="Avatar">
+                    <button onclick="logout()" class="text-sm bg-blue-700 hover:bg-blue-800 px-3 py-1.5 rounded-full transition-colors text-white" title="Keluar">
+                        <i class="ph ph-sign-out"></i>
+                    </button>
+                </div>
+                <button onclick="installPWA()" id="installBtn" class="hidden text-sm bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors">
+                    <i class="ph ph-download-simple mr-1"></i> Install App
+                </button>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-3xl mx-auto px-4 mt-6 space-y-6">
+    <!-- Login Screen -->
+    <main id="loginScreen" class="max-w-3xl mx-auto px-4 mt-20 text-center">
+        <div class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 max-w-sm mx-auto">
+            <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">
+                <i class="ph-fill ph-wallet"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Selamat Datang</h2>
+            <p class="text-slate-500 text-sm mb-6">Login dengan akun Google agar data Anda tersinkronisasi di HP dan Laptop.</p>
+            <button onclick="loginWithGoogle()" class="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium py-3 px-4 rounded-xl transition-colors shadow-sm flex justify-center items-center gap-3">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                Lanjutkan dengan Google
+            </button>
+        </div>
+    </main>
 
+    <!-- App Content (Hidden initially) -->
+    <main id="appContent" class="hidden max-w-3xl mx-auto px-4 mt-6 space-y-6">
+        
         <!-- Dashboard Section -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Saldo -->
-            <div
-                class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 col-span-1 md:col-span-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white">
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 col-span-1 md:col-span-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white">
                 <p class="text-blue-100 text-sm font-medium mb-1">Total Saldo</p>
                 <h2 id="totalBalance" class="text-3xl font-bold tracking-tight">Rp 0</h2>
             </div>
-
+            
             <!-- Pemasukan -->
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
-                <div
-                    class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl">
+                <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl">
                     <i class="ph ph-trend-up"></i>
                 </div>
                 <div>
@@ -97,18 +121,16 @@
                     <!-- Jenis -->
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">Jenis Transaksi</label>
-                        <select id="type"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                        <select id="type" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
                             <option value="expense">Pengeluaran</option>
                             <option value="income">Pemasukan</option>
                         </select>
                     </div>
-
+                    
                     <!-- Kategori -->
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">Kategori</label>
-                        <select id="category"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                        <select id="category" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
                             <!-- Populated by JS based on type -->
                         </select>
                     </div>
@@ -116,27 +138,23 @@
                     <!-- Nominal -->
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">Nominal (Rp)</label>
-                        <input type="number" id="amount" required min="1" placeholder="Contoh: 50000"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                        <input type="number" id="amount" required min="1" placeholder="Contoh: 50000" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
                     </div>
 
                     <!-- Tanggal -->
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">Tanggal</label>
-                        <input type="date" id="date" required
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                        <input type="date" id="date" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
                     </div>
-
+                    
                     <!-- Keterangan -->
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-slate-600 mb-1">Keterangan (Opsional)</label>
-                        <input type="text" id="description" placeholder="Contoh: Beli makan siang"
-                            class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                        <input type="text" id="description" placeholder="Contoh: Beli makan siang" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
                     </div>
                 </div>
 
-                <button type="submit"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-colors shadow-sm mt-2 flex justify-center items-center gap-2">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-colors shadow-sm mt-2 flex justify-center items-center gap-2">
                     <i class="ph ph-floppy-disk"></i> Simpan Transaksi
                 </button>
             </form>
@@ -149,46 +167,49 @@
                     <i class="ph-fill ph-clock-counter-clockwise text-slate-400"></i> Riwayat Terakhir
                 </h3>
             </div>
-
+            
             <div id="transactionList" class="divide-y divide-slate-100 no-scrollbar overflow-y-auto max-h-[400px]">
                 <!-- Item disuntikkan via JS -->
             </div>
-
+            
             <div id="emptyState" class="hidden p-8 text-center text-slate-400">
                 <i class="ph ph-receipt text-5xl mb-2 opacity-50"></i>
                 <p>Belum ada riwayat transaksi.</p>
             </div>
         </section>
-
+        
     </main>
 
     <!-- Toast Notification (pengganti alert) -->
-    <div id="toast"
-        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-full text-sm shadow-lg transition-all duration-300 opacity-0 translate-y-10 pointer-events-none z-50">
+    <div id="toast" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-full text-sm shadow-lg transition-all duration-300 opacity-0 translate-y-10 pointer-events-none z-50">
         Pesan Toast
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // GANTI BAGIAN INI DENGAN KONFIGURASI FIREBASE ANDA SENDIRI DARI LANGKAH 4
         const firebaseConfig = {
-            apiKey: "AIzaSyCx2AV0PTussrLZetXjqiElHXokCzLnsGw",
-            authDomain: "mywalletapp-d63c7.firebaseapp.com",
-            projectId: "mywalletapp-d63c7",
-            storageBucket: "mywalletapp-d63c7.firebasestorage.app",
-            messagingSenderId: "497468405827",
-            appId: "1:497468405827:web:ca1a36b95c5ec423b6bcf6"
+            apiKey: "COPY_DARI_FIREBASE",
+            authDomain: "COPY_DARI_FIREBASE",
+            projectId: "COPY_DARI_FIREBASE",
+            storageBucket: "COPY_DARI_FIREBASE",
+            messagingSenderId: "COPY_DARI_FIREBASE",
+            appId: "COPY_DARI_FIREBASE"
         };
         const appId = 'mywallet-app';
 
         let app, auth, db;
         try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
+            if (firebaseConfig.apiKey !== "COPY_DARI_FIREBASE") {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            } else {
+                console.warn("⚠️ Konfigurasi Firebase belum diisi. Menunggu update dari Anda.");
+            }
         } catch (e) {
             console.error("Firebase init error:", e);
         }
@@ -255,7 +276,8 @@
         // State & Data
         let transactions = []; // Data akan dimuat dari Cloud Database
         let currentUser = null;
-
+        let unsubscribeSnapshot = null;
+        
         const categories = {
             expense: [
                 { id: 'food', name: 'Makanan & Minuman', icon: 'ph-hamburger' },
@@ -305,33 +327,77 @@
         };
 
         // --- 3. DATABASE SETUP (CLOUD) ---
-        async function initAuth() {
+        const googleProvider = new GoogleAuthProvider();
+
+        function setupAuth() {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    // Jika User berhasil login
+                    currentUser = user;
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('appContent').classList.remove('hidden');
+                    document.getElementById('userInfo').classList.remove('hidden');
+                    // Tampilkan foto profil
+                    document.getElementById('userAvatar').src = user.photoURL || 'https://placehold.co/100x100/2563eb/white?text=' + (user.displayName || 'U').charAt(0);
+                    
+                    setupRealtimeData();
+                } else {
+                    // Jika User logout/belum login
+                    currentUser = null;
+                    transactions = [];
+                    document.getElementById('loginScreen').classList.remove('hidden');
+                    document.getElementById('appContent').classList.add('hidden');
+                    document.getElementById('userInfo').classList.add('hidden');
+                    
+                    // Matikan listener database supaya tidak error
+                    if (unsubscribeSnapshot) {
+                        unsubscribeSnapshot();
+                    }
+                }
+            });
+        }
+
+        async function loginWithGoogle() {
+            if (firebaseConfig.apiKey === "COPY_DARI_FIREBASE") {
+                showToast("Konfigurasi Firebase belum diisi!");
+                return;
+            }
             try {
-                // Menggunakan mode Anonymous Login untuk Firebase milik Anda sendiri
-                await signInAnonymously(auth);
-                currentUser = auth.currentUser;
-                setupRealtimeData();
+                await signInWithPopup(auth, googleProvider);
+                showToast("Berhasil login!");
             } catch (error) {
-                console.error("Auth error:", error);
-                showToast("Gagal terhubung ke database cloud.");
+                console.error("Login error:", error);
+                showToast("Gagal login dengan Google.");
             }
         }
+        window.loginWithGoogle = loginWithGoogle;
+
+        async function logout() {
+            try {
+                await signOut(auth);
+                showToast("Berhasil keluar.");
+            } catch (error) {
+                console.error("Logout error:", error);
+                showToast("Gagal keluar.");
+            }
+        }
+        window.logout = logout;
 
         function setupRealtimeData() {
             if (!currentUser) return; // Wajib terautentikasi sebelum membaca data
-
+            
             const userId = currentUser.uid;
-
+            
             // Tentukan jalur penyimpanan khusus untuk user (Data Pribadi)
             const txCollection = collection(db, 'artifacts', appId, 'users', userId, 'transactions');
-
+            
             // Mendengarkan perubahan data secara realtime (Sync across devices)
-            onSnapshot(txCollection, (snapshot) => {
+            unsubscribeSnapshot = onSnapshot(txCollection, (snapshot) => {
                 transactions = [];
                 snapshot.forEach((doc) => {
                     transactions.push({ id: doc.id, ...doc.data() });
                 });
-
+                
                 // Urutkan data berdasarkan tanggal terbaru
                 transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
                 updateUI();
@@ -346,10 +412,14 @@
             setupPWA();
             dateInput.valueAsDate = new Date(); // Set today
             updateCategoryDropdown();
-
+            
             // Hubungkan ke Cloud DB saat mulai
-            if (app) initAuth();
-            else updateUI();
+            if (app) setupAuth();
+            else {
+                // Tampilkan halaman login jika belum di-setup
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('appContent').classList.add('hidden');
+            }
 
             // Event Listeners
             typeSelect.addEventListener('change', updateCategoryDropdown);
@@ -359,8 +429,8 @@
         function updateCategoryDropdown() {
             const type = typeSelect.value;
             const options = categories[type];
-
-            categorySelect.innerHTML = options.map(cat =>
+            
+            categorySelect.innerHTML = options.map(cat => 
                 `<option value="${cat.id}">${cat.name}</option>`
             ).join('');
         }
@@ -377,7 +447,7 @@
 
         async function handleAddTransaction(e) {
             e.preventDefault();
-
+            
             if (!currentUser) {
                 showToast('Gagal: Belum terhubung ke server');
                 return;
@@ -412,11 +482,11 @@
                     date,
                     description
                 });
-
+                
                 // Reset form input
                 document.getElementById('amount').value = '';
                 document.getElementById('description').value = '';
-
+                
                 showToast('Tersimpan di Cloud Database!');
             } catch (error) {
                 console.error("Gagal menyimpan:", error);
@@ -430,7 +500,7 @@
 
         async function deleteTransaction(id) {
             if (!currentUser) return;
-
+            
             try {
                 // Hapus langsung dari Cloud Database
                 await deleteDoc(doc(db, 'artifacts', appId, 'users', currentUser.uid, 'transactions', id));
@@ -461,16 +531,16 @@
 
             // Update Riwayat List
             listContainer.innerHTML = '';
-
+            
             if (transactions.length === 0) {
                 emptyState.classList.remove('hidden');
             } else {
                 emptyState.classList.add('hidden');
-
+                
                 transactions.forEach(t => {
                     const isIncome = t.type === 'income';
                     const iconClass = getCategoryIcon(t.type, t.category);
-
+                    
                     const div = document.createElement('div');
                     div.className = "p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group cursor-default";
                     div.innerHTML = `
@@ -496,12 +566,12 @@
                             </button>
                         </div>
                     `;
-
+                    
                     // Supaya di mobile button hapus tetap terlihat (tanpa hover)
                     if (window.innerWidth < 768) {
                         div.querySelector('button').classList.remove('opacity-0');
                     }
-
+                    
                     listContainer.appendChild(div);
                 });
             }
@@ -512,5 +582,4 @@
 
     </script>
 </body>
-
 </html>
