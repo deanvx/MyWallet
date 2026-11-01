@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#3b82f6">
+    <title>Pencatat Keuangan Pribadi</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Smooth scrolling dan hide scrollbar untuk estetik */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-20">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-md sticky top-0 z-10">
+        <div class="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="ph-fill ph-wallet text-2xl"></i> DompetKu
+            </h1>
+            <button onclick="installPWA()" id="installBtn" class="hidden text-sm bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors">
+                <i class="ph ph-download-simple mr-1"></i> Install App
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-4 mt-6 space-y-6">
+        
+        <!-- Dashboard Section -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Saldo -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 col-span-1 md:col-span-3 bg-gradient-to-br from-blue-500 to-blue-700 text-white">
+                <p class="text-blue-100 text-sm font-medium mb-1">Total Saldo</p>
+                <h2 id="totalBalance" class="text-3xl font-bold tracking-tight">Rp 0</h2>
+            </div>
+            
+            <!-- Pemasukan -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl">
+                    <i class="ph ph-trend-up"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-xs font-medium mb-0.5">Pemasukan</p>
+                    <h3 id="totalIncome" class="text-lg font-bold text-emerald-600">Rp 0</h3>
+                </div>
+            </div>
+
+            <!-- Pengeluaran -->
+            <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100 flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-2xl">
+                    <i class="ph ph-trend-down"></i>
+                </div>
+                <div>
+                    <p class="text-slate-500 text-xs font-medium mb-0.5">Pengeluaran</p>
+                    <h3 id="totalExpense" class="text-lg font-bold text-rose-600">Rp 0</h3>
+                </div>
+            </div>
+        </section>
+
+        <!-- Form Tambah Transaksi -->
+        <section class="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
+            <h3 class="font-semibold text-lg mb-4 flex items-center gap-2">
+                <i class="ph-fill ph-plus-circle text-blue-500"></i> Tambah Transaksi
+            </h3>
+            <form id="transactionForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Jenis -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Jenis Transaksi</label>
+                        <select id="type" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                            <option value="expense">Pengeluaran</option>
+                            <option value="income">Pemasukan</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Kategori -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Kategori</label>
+                        <select id="category" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                            <!-- Populated by JS based on type -->
+                        </select>
+                    </div>
+
+                    <!-- Nominal -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Nominal (Rp)</label>
+                        <input type="number" id="amount" required min="1" placeholder="Contoh: 50000" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                    </div>
+
+                    <!-- Tanggal -->
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Tanggal</label>
+                        <input type="date" id="date" required class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                    </div>
+                    
+                    <!-- Keterangan -->
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Keterangan (Opsional)</label>
+                        <input type="text" id="description" placeholder="Contoh: Beli makan siang" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-slate-50 transition-all">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition-colors shadow-sm mt-2 flex justify-center items-center gap-2">
+                    <i class="ph ph-floppy-disk"></i> Simpan Transaksi
+                </button>
+            </form>
+        </section>
+
+        <!-- Riwayat Transaksi -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h3 class="font-semibold text-lg flex items-center gap-2">
+                    <i class="ph-fill ph-clock-counter-clockwise text-slate-400"></i> Riwayat Terakhir
+                </h3>
+            </div>
+            
+            <div id="transactionList" class="divide-y divide-slate-100 no-scrollbar overflow-y-auto max-h-[400px]">
+                <!-- Item disuntikkan via JS -->
+            </div>
+            
+            <div id="emptyState" class="hidden p-8 text-center text-slate-400">
+                <i class="ph ph-receipt text-5xl mb-2 opacity-50"></i>
+                <p>Belum ada riwayat transaksi.</p>
+            </div>
+        </section>
+        
+    </main>
+
+    <!-- Toast Notification (pengganti alert) -->
+    <div id="toast" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-full text-sm shadow-lg transition-all duration-300 opacity-0 translate-y-10 pointer-events-none z-50">
+        Pesan Toast
+    </div>
+
+    <script>
+        // --- 1. PWA MOCKING (Injecting Manifest & Service Worker from single file) ---
+        function setupPWA() {
+            // A. Inject manifest.json
+            const manifestData = {
+                "name": "DompetKu PWA",
+                "short_name": "DompetKu",
+                "start_url": ".",
+                "display": "standalone",
+                "background_color": "#f8fafc",
+                "theme_color": "#2563eb",
+                "icons": [
+                    {
+                        "src": "https://placehold.co/192x192/2563eb/white?text=DK",
+                        "sizes": "192x192",
+                        "type": "image/png"
+                    },
+                    {
+                        "src": "https://placehold.co/512x512/2563eb/white?text=DK",
+                        "sizes": "512x512",
+                        "type": "image/png"
+                    }
+                ]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+            const manifestUrl = URL.createObjectURL(manifestBlob);
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = manifestUrl;
+            document.head.appendChild(link);
+
+            // B. Service Worker (Dihapus)
+            // Registrasi Service Worker via Blob URL tidak didukung secara keamanan di environment ini,
+            // sehingga bagian ini dilewati agar tidak menyebabkan error di console.
+        }
+
+        // PWA Install Prompt handling
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const installBtn = document.getElementById('installBtn');
+            installBtn.classList.remove('hidden');
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('installBtn').classList.add('hidden');
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        // --- 2. LOGIC APLIKASI KEUANGAN ---
+
+        // State & Data
+        let transactions = JSON.parse(localStorage.getItem('dompetku_data')) || [];
+        
+        const categories = {
+            expense: [
+                { id: 'food', name: 'Makanan & Minuman', icon: 'ph-hamburger' },
+                { id: 'transport', name: 'Transportasi', icon: 'ph-car' },
+                { id: 'shopping', name: 'Belanja', icon: 'ph-shopping-bag' },
+                { id: 'bills', name: 'Tagihan', icon: 'ph-receipt' },
+                { id: 'entertainment', name: 'Hiburan', icon: 'ph-popcorn' },
+                { id: 'other_exp', name: 'Lainnya', icon: 'ph-dots-three-circle' }
+            ],
+            income: [
+                { id: 'salary', name: 'Gaji', icon: 'ph-money' },
+                { id: 'bonus', name: 'Bonus', icon: 'ph-gift' },
+                { id: 'investment', name: 'Investasi', icon: 'ph-chart-line-up' },
+                { id: 'other_inc', name: 'Lainnya', icon: 'ph-dots-three-circle' }
+            ]
+        };
+
+        // DOM Elements
+        const form = document.getElementById('transactionForm');
+        const typeSelect = document.getElementById('type');
+        const categorySelect = document.getElementById('category');
+        const dateInput = document.getElementById('date');
+        const listContainer = document.getElementById('transactionList');
+        const emptyState = document.getElementById('emptyState');
+        const toast = document.getElementById('toast');
+
+        // Utils
+        const formatRupiah = (number) => {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(number);
+        };
+
+        const formatDate = (dateString) => {
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        };
+
+        const showToast = (message) => {
+            toast.textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+            }, 3000);
+        };
+
+        // Initialize UI
+        function init() {
+            setupPWA();
+            dateInput.valueAsDate = new Date(); // Set today
+            updateCategoryDropdown();
+            updateUI();
+
+            // Event Listeners
+            typeSelect.addEventListener('change', updateCategoryDropdown);
+            form.addEventListener('submit', handleAddTransaction);
+        }
+
+        function updateCategoryDropdown() {
+            const type = typeSelect.value;
+            const options = categories[type];
+            
+            categorySelect.innerHTML = options.map(cat => 
+                `<option value="${cat.id}">${cat.name}</option>`
+            ).join('');
+        }
+
+        function getCategoryIcon(type, catId) {
+            const catInfo = categories[type].find(c => c.id === catId);
+            return catInfo ? catInfo.icon : 'ph-question';
+        }
+
+        function getCategoryName(type, catId) {
+            const catInfo = categories[type].find(c => c.id === catId);
+            return catInfo ? catInfo.name : 'Unknown';
+        }
+
+        function handleAddTransaction(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('type').value;
+            const category = document.getElementById('category').value;
+            const amount = parseFloat(document.getElementById('amount').value);
+            const date = document.getElementById('date').value;
+            const description = document.getElementById('description').value || getCategoryName(type, category);
+
+            if (!amount || amount <= 0) {
+                showToast('Nominal harus lebih dari 0');
+                return;
+            }
+
+            const transaction = {
+                id: Date.now().toString(),
+                type,
+                category,
+                amount,
+                date,
+                description
+            };
+
+            transactions.push(transaction);
+            
+            // Sort by date desc
+            transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            saveData();
+            updateUI();
+            
+            // Reset form but keep date
+            document.getElementById('amount').value = '';
+            document.getElementById('description').value = '';
+            
+            showToast('Transaksi berhasil disimpan!');
+        }
+
+        function deleteTransaction(id) {
+            transactions = transactions.filter(t => t.id !== id);
+            saveData();
+            updateUI();
+            showToast('Transaksi dihapus.');
+        }
+
+        function saveData() {
+            localStorage.setItem('dompetku_data', JSON.stringify(transactions));
+        }
+
+        function updateUI() {
+            // Hitung total
+            let income = 0;
+            let expense = 0;
+
+            transactions.forEach(t => {
+                if (t.type === 'income') income += t.amount;
+                else expense += t.amount;
+            });
+
+            const balance = income - expense;
+
+            // Update Dashboard text
+            document.getElementById('totalBalance').textContent = formatRupiah(balance);
+            document.getElementById('totalIncome').textContent = formatRupiah(income);
+            document.getElementById('totalExpense').textContent = formatRupiah(expense);
+
+            // Update Riwayat List
+            listContainer.innerHTML = '';
+            
+            if (transactions.length === 0) {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+                
+                transactions.forEach(t => {
+                    const isIncome = t.type === 'income';
+                    const iconClass = getCategoryIcon(t.type, t.category);
+                    
+                    const div = document.createElement('div');
+                    div.className = "p-4 flex items-center justify-between hover:bg-slate-50 transition-colors group cursor-default";
+                    div.innerHTML = `
+                        <div class="flex items-center gap-3 md:gap-4">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-xl shrink-0 ${isIncome ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}">
+                                <i class="ph ${iconClass}"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-medium text-slate-800 line-clamp-1">${t.description}</h4>
+                                <div class="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                                    <span>${formatDate(t.date)}</span>
+                                    <span>•</span>
+                                    <span>${getCategoryName(t.type, t.category)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 text-right">
+                            <div class="font-semibold ${isIncome ? 'text-emerald-600' : 'text-rose-600'}">
+                                ${isIncome ? '+' : '-'}${formatRupiah(t.amount)}
+                            </div>
+                            <button onclick="deleteTransaction('${t.id}')" class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors opacity-0 md:group-hover:opacity-100 focus:opacity-100">
+                                <i class="ph ph-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    // Supaya di mobile button hapus tetap terlihat (tanpa hover)
+                    if (window.innerWidth < 768) {
+                        div.querySelector('button').classList.remove('opacity-0');
+                    }
+                    
+                    listContainer.appendChild(div);
+                });
+            }
+        }
+
+        // Jalankan aplikasi
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>
