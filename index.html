@@ -240,8 +240,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // Menggunakan signInWithPopup kembali (lebih stabil di cross-origin Vercel)
-        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // Menggunakan signInWithPopup dengan Persistence Management
+        import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence, browserPopupRedirectResolver } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -415,25 +415,27 @@
             try {
                 if (loginBtnText) loginBtnText.innerText = "Menghubungkan...";
 
-                // Pastikan prompt pilihan akun selalu dipaksa saat login
+                // Set persistence ke local storage agar sesi bertahan tanpa bergantung pada temporary session storage
+                await setPersistence(auth, browserLocalPersistence);
+
                 googleProvider.setCustomParameters({
                     prompt: 'select_account'
                 });
 
-                await signInWithPopup(auth, googleProvider);
+                await signInWithPopup(auth, googleProvider, browserPopupRedirectResolver);
                 showToast("Login berhasil!");
             } catch (error) {
                 console.error("Login error:", error);
 
-                // Jika browser memblokir sessionStorage / cross-site cookies
-                if (error.message && (error.message.includes('missing initial state') || error.code === 'auth/internal-error')) {
-                    // Bersihkan cache storage sementara browser agar tidak tersangkut di state gantung
+                // Jika browser memblokir storage/cookies atau missing initial state
+                if (error.code === 'auth/web-storage-unsupported' || (error.message && error.message.includes('missing initial state'))) {
                     try {
                         sessionStorage.clear();
+                        localStorage.clear();
                     } catch (e) { }
                     document.getElementById('storageModal').classList.remove('hidden');
                 } else if (error.code !== 'auth/popup-closed-by-user') {
-                    showToast("Error: " + (error.code || error.message));
+                    showToast("Gagal login. Coba muat ulang halaman.");
                 }
             } finally {
                 if (loginBtnText) loginBtnText.innerText = originalText || "Lanjutkan dengan Google";
@@ -443,7 +445,7 @@
 
         async function logout() {
             try {
-                // Bersihkan session storage agar tidak ada state auth lama yang gantung
+                // Hapus token lokal secara manual untuk memastikan state bersih 100%
                 try {
                     sessionStorage.clear();
                     localStorage.clear();
@@ -452,7 +454,6 @@
                 await signOut(auth);
                 showToast("Berhasil keluar.");
 
-                // Hard reset sederhana pada komponen auth UI
                 currentUser = null;
                 transactions = [];
                 document.getElementById('loginScreen').classList.remove('hidden');
