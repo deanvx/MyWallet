@@ -355,6 +355,11 @@
         // --- 3. DATABASE SETUP (CLOUD) ---
         const googleProvider = new GoogleAuthProvider();
 
+        // Tambahkan baris ini untuk MEMAKSA Google selalu menampilkan layar "Pilih Akun"
+        googleProvider.setCustomParameters({
+            prompt: 'select_account'
+        });
+
         function setupAuth() {
             onAuthStateChanged(auth, (user) => {
                 if (user) {
