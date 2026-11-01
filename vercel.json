@@ -1,0 +1,10 @@
+
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    {
+      "source": "/__/auth/:path*",
+      "destination": "https://mywalletapp-d63c7.firebaseapp.com/__/auth/:path*"
+    }
+  ]
+}
