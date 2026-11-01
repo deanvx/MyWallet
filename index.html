@@ -40,7 +40,7 @@
     <header class="bg-blue-600 text-white shadow-md sticky top-0 z-10">
         <div class="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
             <h1 class="text-xl font-bold flex items-center gap-2">
-                <i class="ph-fill ph-wallet text-2xl"></i> DompetKu
+                <i class="ph-fill ph-wallet text-2xl"></i> MyWallet
             </h1>
             <button onclick="installPWA()" id="installBtn" class="hidden text-sm bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded-full transition-colors">
                 <i class="ph ph-download-simple mr-1"></i> Install App
@@ -160,8 +160,8 @@
         function setupPWA() {
             // A. Inject manifest.json
             const manifestData = {
-                "name": "DompetKu PWA",
-                "short_name": "DompetKu",
+                "name": "MyWallet PWA",
+                "short_name": "MyWallet",
                 "start_url": ".",
                 "display": "standalone",
                 "background_color": "#f8fafc",
@@ -215,7 +215,7 @@
         // --- 2. LOGIC APLIKASI KEUANGAN ---
 
         // State & Data
-        let transactions = JSON.parse(localStorage.getItem('dompetku_data')) || [];
+        let transactions = JSON.parse(localStorage.getItem('mywallet_data')) || [];
         
         const categories = {
             expense: [
@@ -342,7 +342,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('dompetku_data', JSON.stringify(transactions));
+            localStorage.setItem('mywallet_data', JSON.stringify(transactions));
         }
 
         function updateUI() {
